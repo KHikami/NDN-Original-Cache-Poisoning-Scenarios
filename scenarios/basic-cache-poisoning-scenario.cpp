@@ -69,6 +69,7 @@ main(int argc, char* argv[])
 
   // Install NDN stack on all nodes
   StackHelper ndnHelper;
+  ndnHelper.SetOldContentStore("ns3::ndn::cs::Freshness::Lru");
   ndnHelper.InstallAll();
 
   // Choosing forwarding strategy (can change this later when defining consumer and producer)

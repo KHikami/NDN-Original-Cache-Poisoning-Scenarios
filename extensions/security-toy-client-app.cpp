@@ -49,8 +49,8 @@ SecurityToyClientApp::GetTypeId()
      .SetParent<Consumer>()
      .AddConstructor<SecurityToyClientApp>()
      .AddAttribute("WaitTime", "Wait Time in seconds after a Packet is Verified to send out the next packet", 
-                  StringValue("2"), MakeIntegerAccessor(&SecurityToyClientApp::m_waitTime), 
-                  MakeIntegerChecker<uint32_t>())
+                  StringValue("2.0"), MakeDoubleAccessor(&SecurityToyClientApp::m_waitTime), 
+                  MakeDoubleChecker<double>())
      .AddAttribute("MaxSeq", "Maximum sequence number to request",
                     IntegerValue(std::numeric_limits<uint32_t>::max()),
                     MakeIntegerAccessor(&SecurityToyClientApp::m_seqMax), MakeIntegerChecker<uint32_t>())
@@ -63,7 +63,7 @@ SecurityToyClientApp::GetTypeId()
                    StringValue("1024"), MakeIntegerAccessor(&SecurityToyClientApp::m_goodDataSize), 
                    MakeIntegerChecker<uint32_t>())
      .AddAttribute("DelayStart", "Seconds for how long client should wait to send first interest", StringValue("0"), 
-                   MakeIntegerAccessor(&SecurityToyClientApp::m_delayStartTime), MakeIntegerChecker<uint32_t>());
+                   MakeDoubleAccessor(&SecurityToyClientApp::m_delayStartTime), MakeDoubleChecker<double>());
    return tid;
 }
 
@@ -76,7 +76,7 @@ SecurityToyClientApp::SecurityToyClientApp()
 {
    //constructor. Should generate the random function and packet sequence number (if needed)
    NS_LOG_FUNCTION_NOARGS();
-   m_waitTime = 2; //suggested is reaction time is at least half of this wait time else infinite loop mode...
+   m_waitTime = 2.0; //suggested is reaction time is at least half of this wait time else infinite loop mode...
    m_reactionTime = 1.0;
    m_delayStartTime = 0;
    m_firstTime = true;

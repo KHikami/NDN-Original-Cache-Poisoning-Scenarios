@@ -60,6 +60,7 @@ main(int argc, char* argv[])
 
   // Install NDN stack on all nodes
   ndn::StackHelper ndnHelper;
+  ndnHelper.SetOldContentStore("ns3::ndn::cs::Freshness::Lru");
   ndnHelper.InstallAll();
 
   // Set BestRoute strategy

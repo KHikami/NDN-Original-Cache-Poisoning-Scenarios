@@ -69,8 +69,8 @@ class SecurityToyClientApp : public Consumer
 
      double m_reactionTime; //time needed to wait from sending original request to verification etc.
      uint32_t m_keyRequestInterestSeq;
-     uint32_t m_waitTime; //time from a packet being verified to sending the next interest
-     uint32_t m_delayStartTime; //time to wait before sending first packet
+     double m_waitTime; //time from a packet being verified to sending the next interest
+     double m_delayStartTime; //time to wait before sending first packet
      uint32_t m_originalNonce;//the original nonce of the Interest that got the bad packet back
      uint32_t m_originalSequenceNumber; //original sequence number of the packet I sent
 
