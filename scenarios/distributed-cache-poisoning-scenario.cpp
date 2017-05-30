@@ -85,14 +85,16 @@ main(int argc, char* argv[])
 
   ndn::AppHelper consumerHelper("ns3::ndn::SecurityToyClientApp");
   consumerHelper.SetPrefix(dataPrefix);
-  consumerHelper.SetAttribute("WaitTime", StringValue("2"));
+  consumerHelper.SetAttribute("WaitTime", StringValue("1.0"));
+  consumerHelper.SetAttribute("ReactionTime", StringValue("0.5"));
   consumerHelper.SetAttribute("KeyName", StringValue(keyPrefix));
   consumerHelper.Install(consumer1);
 
   //Consumer2: delay start time of 1
   ndn::AppHelper consumerHelper2("ns3::ndn::SecurityToyClientApp");
   consumerHelper2.SetPrefix(dataPrefix);
-  consumerHelper2.SetAttribute("WaitTime", StringValue("2"));
+  consumerHelper2.SetAttribute("WaitTime", StringValue("1.0"));
+  consumerHelper.SetAttribute("ReactionTime", StringValue("0.5"));
   consumerHelper2.SetAttribute("KeyName", StringValue(keyPrefix));
   consumerHelper2.SetAttribute("DelayStart", StringValue("1"));
   consumerHelper2.Install(consumer2);
@@ -100,7 +102,8 @@ main(int argc, char* argv[])
   //Consumer3: delay start time of 2
   ndn::AppHelper consumerHelper3("ns3::ndn::SecurityToyClientApp");
   consumerHelper3.SetPrefix(dataPrefix);
-  consumerHelper3.SetAttribute("WaitTime", StringValue("2"));
+  consumerHelper3.SetAttribute("WaitTime", StringValue("1.0"));
+  consumerHelper.SetAttribute("ReactionTime", StringValue("0.5"));
   consumerHelper3.SetAttribute("KeyName", StringValue(keyPrefix));
   consumerHelper3.SetAttribute("DelayStart", StringValue("2"));
   consumerHelper3.Install(consumer3);

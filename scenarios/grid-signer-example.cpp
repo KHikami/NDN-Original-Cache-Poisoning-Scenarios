@@ -82,7 +82,8 @@ main(int argc, char* argv[])
 
   ndn::AppHelper consumerHelper("ns3::ndn::SecurityToyClientApp");
   consumerHelper.SetPrefix(dataPrefix);
-  consumerHelper.SetAttribute("WaitTime", StringValue("2"));
+  consumerHelper.SetAttribute("WaitTime", StringValue("1.0"));
+  consumerHelper.SetAttribute("ReactionTime", StringValue("0.5"));
   consumerHelper.SetAttribute("KeyName", StringValue(keyPrefix));
   consumerHelper.Install(consumerNodes);
 

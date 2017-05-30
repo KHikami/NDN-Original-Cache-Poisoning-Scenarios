@@ -76,7 +76,8 @@ main(int argc, char* argv[])
   // Consumer
   AppHelper consumerHelper("ns3::ndn::SecurityToyClientApp");
   consumerHelper.SetPrefix(dataPrefix);
-  consumerHelper.SetAttribute("WaitTime", StringValue("2"));//sends out a new interest for a packet per this int.
+  consumerHelper.SetAttribute("WaitTime", StringValue("1.0"));//sends out a new interest for a packet per this int.
+  consumerHelper.SetAttribute("ReactionTime", StringValue("0.5"));
   consumerHelper.SetAttribute("KeyName", StringValue(keyPrefix));
   consumerHelper.Install(nodes.Get(0));                        // first node
 
