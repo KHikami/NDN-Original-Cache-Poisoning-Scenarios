@@ -22,8 +22,8 @@
 
 
 #include "security-toy-client-app.hpp"
-#include "ns3/ndnSIM/utils/ndn-rtt-mean-deviation.hpp"
-#include "ns3/ndnSIM/utils/ndn-ns3-packet-tag.hpp"
+#include "utils/ndn-rtt-mean-deviation.hpp"
+#include "utils/ndn-ns3-packet-tag.hpp"
 #include "ns3/log.h"
 #include "ns3/simulator.h" //needed for properties in the simulator
 #include "ns3/packet.h"
@@ -32,6 +32,9 @@
 #include "ns3/uinteger.h"
 #include "ns3/integer.h"
 #include "ns3/double.h"
+#include <iostream>
+
+using namespace std;
 
 NS_LOG_COMPONENT_DEFINE("ndn.SecurityToyClientApp");
 
@@ -84,6 +87,8 @@ SecurityToyClientApp::SecurityToyClientApp()
    m_pursuitMode = false;
    m_goodDataSize = 1024;
    m_seqMax = std::numeric_limits<uint32_t>::max(); //needed to be able to send the packets
+   m_seq = 1; //start at 1 for the data packets
+   m_keyRequestInterestSeq = 0;
 }
 
 
@@ -106,12 +111,6 @@ SecurityToyClientApp::SendPacket()
 
   uint32_t seq = std::numeric_limits<uint32_t>::max(); // invalid
 
-  if(m_pursuitMode && !m_verificationMode)
-  {
-     seq = m_originalSequenceNumber;
-  }
-  //NS_LOG_INFO ("Trying to send a packet");
-
   while (m_retxSeqs.size()) {
     seq = *m_retxSeqs.begin();
     m_retxSeqs.erase(m_retxSeqs.begin());
@@ -127,7 +126,22 @@ SecurityToyClientApp::SendPacket()
       }
     }
 
-    seq = m_seq++;
+    if(!m_verificationMode && !m_pursuitMode)
+    {
+       seq = m_seq++;
+    }
+    else
+    {
+       if(m_pursuitMode && !m_verificationMode)
+       {
+          seq = m_originalSequenceNumber;
+       }
+       else
+       {
+          seq = m_keyRequestInterestSeq; 
+       }
+    }
+    //cout << "Sequence number for next packet is: " << seq << ". Following packet will be: " << m_seq << endl;
   }
 
   if(!m_verificationMode && !m_pursuitMode)
@@ -159,6 +173,7 @@ SecurityToyClientApp::SendPacket()
   {
     if(m_pursuitMode && !m_verificationMode)
     {
+      cout << "in pursuit mode!" << endl;
       //I received a bad data packet => I retransmit my previous interest but with EF flag set! (And I have not started 
       //verification yet)
       interest = make_shared<Interest>();
@@ -166,10 +181,6 @@ SecurityToyClientApp::SendPacket()
       interest->setName(*m_originalInterestName);
       time::milliseconds interestLifeTime(m_interestLifeTime.GetMilliSeconds());
       interest->setInterestLifetime(interestLifeTime);
-    
-      //oh dear... Exclude only does it on name components... not on the payload!!! D: (what to do!)
-      //I guess in base scenario, I have name for evil packets be /evil at the end and good packets have /good
-      //but make note of this later...
 
       Exclude excludeSection = Exclude();
       Name evilDataName = m_evilPacket->getName();
@@ -180,16 +191,19 @@ SecurityToyClientApp::SendPacket()
       NS_LOG_DEBUG("Interest with Exclude: " << interest->toUri()); 
 
       NS_LOG_INFO("> Requesting new data for " << seq << ", Total: " << m_seq << ", face: " << m_face->getId());
+      //cout << "> Requesting new data for " << seq << ", Total: " << m_seq << ", face: " << m_face->getId() << endl;
     }
     else
-    { 
+    {
       interest = make_shared<Interest>();
       interest->setNonce(m_rand->GetValue(0,std::numeric_limits<uint32_t>::max()));
       interest->setName(m_keyName);
       time::milliseconds interestLifeTime(m_interestLifeTime.GetMilliSeconds());
       interest->setInterestLifetime(interestLifeTime);
       NS_LOG_INFO("> Interest for " << seq << ", is a Key Request Interest");
-      m_keyRequestInterestSeq = seq;
+      //cout << "> Interest for " << seq << ", is a Key Request Interest" << endl;
+      
+      m_seqRetxCounts[seq] = 0;
     }
   }
   m_seqTimeouts.insert(SeqTimeout(seq, Simulator::Now()));
@@ -237,6 +251,7 @@ SecurityToyClientApp::OnData(shared_ptr<const Data> data)
   {
      uint32_t seq = data->getName().at(2).toSequenceNumber();
      NS_LOG_INFO("< DATA for " << seq << " with name " << data->getName());
+     cout << "< DATA for " << seq << " with name" << data->getName() << endl;
      int hopCount = 0;
      auto hopCountTag = data->getTag<lp::HopCountTag>();
      if (hopCountTag != nullptr) { // e.g., packet came from local node's cache
